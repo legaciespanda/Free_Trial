@@ -8,7 +8,7 @@ A Simple android application (and platform-agnostic REST-API) that enables you t
 4. When the free trial period is due, In-App Purchase will be presented to the user for upgrade in order to continue using the application
 5. If user refuses to upgrade, app exits.
 
-# FEATURE AND DESIGN PATTERN
+# Feature & Design Pattern
 1. MVVM
 2. Android-X
 
