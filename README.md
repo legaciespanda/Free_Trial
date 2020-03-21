@@ -8,6 +8,10 @@ A Simple android application (and platform-agnostic REST-API) that enables you t
 4. When the free trial period is due, In-App Purchase will be presented to the user for upgrade in order to continue using the application
 5. If user refuses to upgrade, app exits.
 
+#FEATURE AND DESIGN PATTERN
+1. MVVM
+2. Android-X
+
 #TODO:
 1. Logic for In-App Purchase
 2. Logic to check if purchase/upgrade has been made else exit the app if not made
