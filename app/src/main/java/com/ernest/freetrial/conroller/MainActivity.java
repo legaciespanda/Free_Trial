@@ -1,8 +1,10 @@
-package com.ernest.freetrial;
+package com.ernest.freetrial.conroller;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.ernest.freetrial.R;
 
 public class MainActivity extends AppCompatActivity {
 
