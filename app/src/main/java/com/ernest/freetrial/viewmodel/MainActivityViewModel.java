@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel;
 
 public class MainActivityViewModel extends ViewModel {
 
-    private final static String TRIALY_APP_KEY = "N1PG28SX7DMMTIXHJ6G";
-    private final static String TRIALY_SKU = "default";
+    private final static String TRIALY_APP_KEY = "OF7TO36SFLIB0F14Y9V";
+    private final static String TRIALY_SKU = "com.ernest.freetrial.PREMIUM_FEATURES";
 
 
     public String getTrialyAppKey(){
