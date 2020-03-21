@@ -2,6 +2,7 @@ package com.ernest.freetrial.conroller;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 
 import com.ernest.freetrial.R;
 import com.ernest.freetrial.viewmodel.MainActivityViewModel;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
@@ -39,15 +41,38 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
 
         /**
          * initialize ViewModel
          */
         mViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
 
-        //Initialize the library and check the current trial status on every launch
+        /**
+         * Initialize the library and check the current trial status on every launch
+         * */
         mTrialy = new Trialy(mContext, mViewModel.getTrialyAppKey());
         mTrialy.checkTrial(mViewModel.getTrialySku(), mTrialyCallback);
+
+        /**
+         * When the user purchases the IAP, record the conversion from trial
+         * to paid user (optional, just for analytics purposes)
+         * */
+        mTrialy.recordConversion(mViewModel.getTrialySku(), mTrialyCallback);
+
+        /**
+         *  start a trial once user launches the application for the first time
+         * */
+        mTrialy.startTrial(mViewModel.getTrialySku(), mTrialyCallback);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mTrialy.startTrial(mViewModel.getTrialySku(), mTrialyCallback);
     }
 
     private TrialyCallback mTrialyCallback = new TrialyCallback() {
@@ -65,44 +90,32 @@ public class MainActivity extends AppCompatActivity {
                     int daysRemaining = Math.round(timeRemaining / (60 * 60 * 24));
                     showDialog("Trial started", String.format(Locale.ENGLISH, "You can now try the premium features for %d days",  daysRemaining), "OK");
                     break;
+
                 case STATUS_TRIAL_RUNNING:
                     //The trial is currently running
                     //TODO: Enable the premium features for the user (depends on your app)
-                    activatePremiumFeatures();
-                    //Update the "Time remaining"-label
                     updateTimeRemainingLabel(timeRemaining);
-                    //Disable the "Start Trial" button
-                    disableStartTrialButton();
                     break;
+
                 case STATUS_TRIAL_JUST_ENDED:
                     //The trial has just ended - block access to the premium features (if the user hasn't paid for them in the meantime)
                     //TODO: Deactivate the premium features for the user (depends on your app)
-                    deactivatePremiumFeatures();
-                    //Disable the "Start Trial" button
-                    disableStartTrialButton();
+
                     //Hide the "Time remaining"-label
                     updateTimeRemainingLabel(-1);
                     break;
+
                 case STATUS_TRIAL_NOT_YET_STARTED:
                     //The user hasn't requested a trial yet - no need to do anything
                     break;
                 case STATUS_TRIAL_OVER:
-                    //The trial is over - disable the "Start trial"-button
-                    disableStartTrialButton();
+                    //The trial is over - show subscription dialog on activity launch
                     break;
-                case STATUS_TRIAL_RESET:
-                    //The trial has been reset - enable the "Start trial"-button
-                    enableStartTrialButton();
-                    //Disable the premium features
-                    deactivatePremiumFeatures();
-                    //Hide the "Time remaining"-label
-                    updateTimeRemainingLabel(-1);
-                    break;
+
                 default:
                     Log.e(TAG, "Trialy response: " + Trialy.getStatusMessage(status));
                     break;
             }
-
             Snackbar.make(findViewById(android.R.id.content), "onCheckResult: " + Trialy.getStatusMessage(status), Snackbar.LENGTH_LONG)
                     .setAction("OK", null).show();
         }
@@ -120,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateTimeRemainingLabel(long timeRemaining){
         if(timeRemaining == -1){
             //Hide the llTimeRemaining-LinearLayout
-            LinearLayout llTimeRemaining = (LinearLayout)findViewById(R.id.llTimeRemaining);
+            LinearLayout llTimeRemaining = (LinearLayout)findViewById(R.id.linearLayout);
             llTimeRemaining.setVisibility(View.GONE);
             return;
         }
@@ -130,10 +143,9 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTimeRemaining = (TextView)findViewById(R.id.tvTimeRemaining);
         tvTimeRemaining.setText(String.format(Locale.ENGLISH, "Your trial ends in %d days",  daysRemaining));
         //Show the llTimeRemaining-LinearLayout
-        LinearLayout llTimeRemaining = (LinearLayout)findViewById(R.id.llTimeRemaining);
+        LinearLayout llTimeRemaining = (LinearLayout)findViewById(R.id.linearLayout);
         llTimeRemaining.setVisibility(View.VISIBLE);
     }
-
 
 
 }
